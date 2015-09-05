@@ -357,13 +357,15 @@ export default class GameOverlay {
   }
 
   static createPathCap( position, radius, material ) {
-    let shape = new THREE.Shape();
+    /*let shape = new THREE.Shape();
     shape.moveTo( 0, 0 );
     // I'm multiplying the end angle by 2.1, as with lower values, I was
     // seeing a missing triangle in the circle.
-    shape.absarc( 0, 0, radius, 0, Math.PI * 2.1, false );
+    shape.absarc( 0, 0, radius, 0, Math.PI * 2.1, false );*/
 
-    return GameOverlay.createMeshFromShape( shape, position, 0, material );
+    let mesh = new THREE.Mesh( new THREE.CircleGeometry( radius, 24 ), material );
+    mesh.position.set( position.x, position.y, position.z );
+    return mesh;
   }
 
   static createMeshFromShape( shape, position, rotation, material ) {
