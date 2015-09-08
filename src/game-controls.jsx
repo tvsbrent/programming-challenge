@@ -5,11 +5,11 @@ import {Button, ButtonGroup, ButtonToolbar, DropdownButton, Glyphicon, MenuItem,
 import SoundManager from './audio/sound-manager';
 import * as AudioData from './audio/audio-data';
 
-export default React.createClass({
+export default React.createClass( {
   getInitialState() {
     return {
       playControlsDisabled: true,
-      stepControlsDisabled: true
+      isPlaying: false
     };
   },
 
@@ -31,10 +31,8 @@ export default React.createClass({
       </ButtonGroup>
       <ButtonGroup>
         <Button bsStyle="primary" onClick={this.onFastBackward} disabled={this.state.playControlsDisabled}><Glyphicon glyph='fast-backward' /></Button>
-        <Button bsStyle="primary" onClick={this.onStepBackward} disabled={this.state.stepControlsDisabled}><Glyphicon glyph='step-backward' /></Button>
-        <Button bsStyle="primary" onClick={this.onPlay} disabled={this.state.stepControlsDisabled}><Glyphicon glyph='play' /></Button>
+        <Button bsStyle="primary" onClick={this.onPlay} disabled={this.state.playControlsDisabled || this.state.isPlaying}><Glyphicon glyph='play' /></Button>
         <Button bsStyle="primary" onClick={this.onStop} disabled={this.state.playControlsDisabled}><Glyphicon glyph='stop' /></Button>
-        <Button bsStyle="primary" onClick={this.onStepForward} disabled={this.state.stepControlsDisabled}><Glyphicon glyph='step-forward' /></Button>
         <Button bsStyle="primary" onClick={this.onFastForward} disabled={this.state.playControlsDisabled}><Glyphicon glyph='fast-forward' /></Button>
       </ButtonGroup>
       <ButtonGroup>
@@ -47,7 +45,7 @@ export default React.createClass({
   onNew() {
     SoundManager.playSoundWithIdAndTime( 'guiTick02', 0, 0.25 );
     this.playButtonTickSound();
-    this.setState( { playControlsDisabled: false, stepControlsDisabled: false } );
+    this.setState( { playControlsDisabled: false } );
     this.props.control.new();
   },
   onOpenBoardSize() {
@@ -55,35 +53,23 @@ export default React.createClass({
   },
   onSelectBoardSize( eventKey ) {
     SoundManager.playSoundWithIdAndTime( 'guiTick02', 0, 0.25 );
-    this.setState( { playControlsDisabled: true, stepControlsDisabled: true } );
+    this.setState( { playControlsDisabled: true } );
     this.playButtonTickSound();
     this.props.control.setSize( eventKey );
   },
   onFastBackward() {
-    this.setState( { stepControlsDisabled: false } );
     this.playButtonTickSound();
     this.props.control.fastBackward();
   },
-  onStepBackward() {
-    this.playButtonTickSound();
-    this.props.control.stepBackward();
-  },
   onPlay() {
-    this.setState( { stepControlsDisabled: true } );
     this.playButtonTickSound();
     this.props.control.play();
   },
   onStop() {
-    this.setState( { stepControlsDisabled: false } );
     this.playButtonTickSound();
     this.props.control.stop();
   },
-  onStepForward() {
-    this.playButtonTickSound();
-    this.props.control.stepForward();
-  },
   onFastForward() {
-    this.setState( { stepControlsDisabled: false } );
     this.playButtonTickSound();
     this.props.control.fastForward();
   },

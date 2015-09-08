@@ -1,4 +1,5 @@
-import THREE from "three";
+import events from 'events';
+import THREE from 'three';
 
 import SoundManager from './audio/sound-manager';
 import Stats from './three/stats.min.js';
@@ -77,6 +78,8 @@ export default function GameWorld( sizeSquare ) {
     MIN_POLAR_ANGLE : THREE.Math.degToRad( 10 ),
     MAX_POLAR_ANGLE : THREE.Math.degToRad( 60 )
   };
+
+  let emitter = new events.EventEmitter();
 
   init();
 
@@ -416,6 +419,7 @@ export default function GameWorld( sizeSquare ) {
   }
 
   function toggleDebug() {
+    emitter.emit('poop');
     debugOn = !debugOn;
     if( debugOn ) {
       stats.domElement.style.visibility = 'visible';
@@ -443,7 +447,7 @@ export default function GameWorld( sizeSquare ) {
   function movementAnimationComplete() {
     currentPath.advanceQueue();
     if( isSimulationPlaying ) {
-      isSimulationPlaying = stepSimulation( false /* step forward */ );
+      setSimulationPlayingState( stepSimulation( false /* step forward */ ) );
     }
   }
 
@@ -482,8 +486,9 @@ export default function GameWorld( sizeSquare ) {
           if( segment === null ||
             segment === undefined ) {
             willMove = false;
+          } else {
+            startPosition = segment.start;
           }
-          startPosition = segment.start;
         }
       }
     }
@@ -507,7 +512,7 @@ export default function GameWorld( sizeSquare ) {
       return;
     }
 
-    isSimulationPlaying = false;
+    setSimulationPlayingState( false );
 
     checkerObject.animationQueue.removeOfType( Object3dAnimations.animTypes.Movement );
     currentPath.stopQueue();
@@ -515,7 +520,14 @@ export default function GameWorld( sizeSquare ) {
 
   function playSimulation() {
     isSimulationPlaying = true;
-    stepSimulation( false /* step forward */ );
+    setSimulationPlayingState( stepSimulation( false /* step forward */ ) );
+  }
+
+  function setSimulationPlayingState( value ) {
+    if( isSimulationPlaying && !value ) {
+      emitter.emit( 'playSimulationComplete' );
+    }
+    isSimulationPlaying = value;
   }
 
   // Animation Loop Functions
@@ -551,7 +563,8 @@ export default function GameWorld( sizeSquare ) {
     jumpSimulation:         jumpSimulation,
     stepSimulation:         stepSimulation,
     playSimulation:         playSimulation,
-    stopSimulation:         stopSimulation
+    stopSimulation:         stopSimulation,
+    emitter:                emitter
   };
 
 }

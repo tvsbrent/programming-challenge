@@ -1,4 +1,5 @@
 //all import statements must go at the top of the file.
+import events from 'events';
 import React from 'react';
 import THREE from 'three';
 
@@ -21,7 +22,7 @@ let Main = React.createClass( {
   },
   render() {
     return <div>
-            <Controls control={this} />
+            <Controls ref='controls' control={this} />
           </div>;
   },
   new() {
@@ -44,6 +45,12 @@ let Main = React.createClass( {
     gameWorld.stepSimulation( true /* is backward */);
   },
   play() {
+    this.refs.controls.setState( { isPlaying : true } );
+    let func = ( function() {
+      this.refs.controls.setState( { isPlaying : false } );
+      gameWorld.emitter.removeListener( 'playSimulationComplete', func );
+    } ).bind( this );
+    gameWorld.emitter.on( 'playSimulationComplete', func );
     gameWorld.playSimulation();
   },
   stop() {
@@ -56,6 +63,7 @@ let Main = React.createClass( {
     gameWorld.jumpSimulation( true /* jump to end */ );
   },
   debug() {
+    this.refs.controls.setState( { isPlaying : true } );
     gameWorld.toggleDebug();
   },
   componentDidMount() {
