@@ -1,104 +1,96 @@
-"use strict";
-
 //all import statements must go at the top of the file.
 import React from 'react';
 import THREE from 'three';
 
-import Board from './game-board';
 import Controls from './game-controls';
-import GameOverlay from './game-overlay';
+import GameWorld from './game-world';
 import CheckerPath from './util/checker-path';
-import Rectangle from './util/rectangle';
+import SoundManager from './audio/sound-manager';
+import * as AudioData from './audio/audio-data';
 
-//get the content DOMElemet create in index.html
-let content = document.getElementById( 'content' );
-let gameOverlay = null;
+let gameWorld = new GameWorld( 40 /* square size */ );
 
-//This is a React class. It's main methods are 'getInitialState', and 'render'.
+//***************************************************
+// MAIN REACT CLASS
+//***************************************************
 let Main = React.createClass( {
-
   getInitialState() {
     return {
-      size: this.props.size,
-      squareSize: this.props.squareSize
+      size: this.props.size
     };
   },
-
   render() {
     return <div>
-            <Controls control={this} squareSize={this.state.squareSize}/>
-            <Board ref="board" size={this.state.size} squareSize={this.state.squareSize} />
+            <Controls control={this} />
           </div>;
   },
-
   new() {
-    newSimulation( this );
+    gameWorld.startNewSimulation();
   },
-
   setSize( boardSize ) {
-    gameOverlay.resetSimulation();
     //we update our internal state.
     this.state.size = +boardSize; // Coerce to a number!
     //setting our state forces a rerender, which in turn will call the render() method
     //of this class. This is how everything gets redrawn and how you 'react' to user input
     //to change the state of the DOM.
     this.setState( this.state );
-  },
 
+    gameWorld.createNewBoard( this.state.size );
+  },
   fastBackward() {
-    console.log( "Fast Backward" );
+    gameWorld.jumpSimulation( false /* jump to beginning */ );
   },
-
   stepBackward() {
-    console.log( "Step Backward" );
+    gameWorld.stepSimulation( true /* is backward */);
   },
-
   play() {
-    console.log( "Play" );
+    gameWorld.playSimulation();
   },
-
   stop() {
-    console.log( "Stop" );
+    gameWorld.stopSimulation();
   },
-
   stepForward() {
-    gameOverlay.advanceSimulation();
+    gameWorld.stepSimulation( false /* is not backward */);
   },
-
   fastForward() {
-    console.log( "Fast Forward" );
+    gameWorld.jumpSimulation( true /* jump to end */ );
   },
-
   debug() {
-    gameOverlay.toggleDebug();
+    gameWorld.toggleDebug();
   },
-
   componentDidMount() {
-    gameOverlay = new GameOverlay( this.refs.board.getBoardBackgroundRect(),
-                                   this.refs.board.getBoardPlaySpaceRect(),
-                                   this.state.squareSize );
+    gameWorld.createNewBoard( this.state.size );
   },
-
   componentDidUpdate() {
-    gameOverlay.update( this.refs.board.getBoardBackgroundRect(),
-                        this.refs.board.getBoardPlaySpaceRect() );
-    newSimulation( this );
+
   }
 } );
 
-function newSimulation( mainComponent ) {
-  gameOverlay.resetSimulation();
 
-  let randomKey = Math.floor( Math.random() * ( mainComponent.state.size * mainComponent.state.size ) ) + 1;
-  gameOverlay.initSimulation( mainComponent.refs.board.getCheckerPath( randomKey ) );
+//***************************************************
+// AUDIO
+//***************************************************
+var audioContext = new window.AudioContext();
+if( !audioContext.createGain ) {
+  audioContext.createGain = audioContext.createGainNode;
+}
+if (!audioContext.createDelay) {
+  audioContext.createDelay = audioContext.createDelayNode;
+}
+if( !audioContext.createScriptProcessor ) {
+  audioContext.createScriptProcessor = audioContext.createJavaScriptNode;
 }
 
-function stopVisualization() {
+SoundManager.init( audioContext );
+SoundManager.loadSounds( AudioData.assets, onAudioReady );
 
+function onAudioReady() {
+  console.log( "onAudioReady: buffers: " + SoundManager.buffers );
 }
 
-//this is the entry point into react. From here on out we deal almost exclusively with the
-//virtual DOM. Here we tell React to attach everything to the content DOM element.
-React.render( <Main squareSize={80} size={5}/>, content, () => {
-  console.log("Rendered!");
+//***************************************************
+// MAIN PROGRAM
+//***************************************************
+let content = document.getElementById( 'content' );
+React.render( <Main size={5}/>, content, () => {
 } );

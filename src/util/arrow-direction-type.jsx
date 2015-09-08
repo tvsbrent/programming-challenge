@@ -21,6 +21,21 @@ export function toString( value ) {
   }
 }
 
+export function getValue( value ) {
+  switch( value ) {
+    case up:
+      return 0;
+    case right:
+      return 1;
+    case down:
+      return 2;
+    case left:
+      return 3;
+    default:
+      return undefined;
+  }
+}
+
 export function getRandom() {
   switch ( Math.floor( Math.random() * 4 ) + 1 ) {
     case 1:
