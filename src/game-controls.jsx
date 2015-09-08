@@ -27,7 +27,8 @@ export default React.createClass( {
           <MenuItem eventKey="8">8 x 8</MenuItem>
           <MenuItem eventKey="9">9 x 9</MenuItem>
         </DropdownButton>
-        <Button bsStyle="primary" onClick={this.onNew}>New Simulation</Button>
+        <Button bsStyle="primary" onClick={this.onNewLayout}>New Layout</Button>
+        <Button bsStyle="primary" onClick={this.onNewSimulation}>New Simulation</Button>
       </ButtonGroup>
       <ButtonGroup>
         <Button bsStyle="primary" onClick={this.onFastBackward} disabled={this.state.playControlsDisabled}><Glyphicon glyph='fast-backward' /></Button>
@@ -42,11 +43,15 @@ export default React.createClass( {
     </Well>
   </div>
   },
-  onNew() {
+  onNewSimulation() {
     SoundManager.playSoundWithIdAndTime( 'guiTick02', 0, 0.25 );
-    this.playButtonTickSound();
     this.setState( { playControlsDisabled: false } );
-    this.props.control.new();
+    this.props.control.newSimulation();
+  },
+  onNewLayout() {
+    SoundManager.playSoundWithIdAndTime( 'guiTick02', 0, 0.25 );
+    this.setState( { playControlsDisabled: true } );
+    this.props.control.newLayout();
   },
   onOpenBoardSize() {
     SoundManager.playSoundWithIdAndTime( 'guiTick01', 0, 0.25 );

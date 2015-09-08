@@ -116,7 +116,7 @@ export default function GameWorld( sizeSquare ) {
     controls = new OrbitControls( camera );
     controls.minPolarAngle  = controlSettings.MIN_POLAR_ANGLE;
     controls.maxPolarAngle  = controlSettings.MAX_POLAR_ANGLE;
-    controls.rotateSpeed = 0.2;
+    controls.rotateSpeed = 0.3;
     controls.minDistance = 2 * squareSize;
     controls.maxDistance = 11 * squareSize;
     controls.noPan = true;

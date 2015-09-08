@@ -25,8 +25,11 @@ let Main = React.createClass( {
             <Controls ref='controls' control={this} />
           </div>;
   },
-  new() {
+  newSimulation() {
     gameWorld.startNewSimulation();
+  },
+  newLayout() {
+    gameWorld.createNewBoard( this.state.size );
   },
   setSize( boardSize ) {
     //we update our internal state.
@@ -63,7 +66,6 @@ let Main = React.createClass( {
     gameWorld.jumpSimulation( true /* jump to end */ );
   },
   debug() {
-    this.refs.controls.setState( { isPlaying : true } );
     gameWorld.toggleDebug();
   },
   componentDidMount() {
