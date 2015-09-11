@@ -324,33 +324,40 @@ export default function GameWorld( sizeSquare ) {
     currentPath = new CheckerPath();
     // Get a random point to start at.
     let index = Math.floor( Math.random() * boardSize * boardSize );
-    // Follow that point through to its end.
-    while( true ) {
-      if( index === null ) {
-        break;
-      } else if( currentPath.hasPoint( squareInfos[index].position ) ) {
-        currentPath.isLoop = true;
 
-        // Iterate over the currIndex array and try to find
-        // the existing point. Going backwards because it is
-        // likely an element at the end of the array.
-        for( let i = currentPath.points.length - 1; i >= 0; --i ) {
-          if( currentPath.points[i].squareInfo === squareInfos[index ] ) {
-            currentPath.points[currentPath.points.length - 1].next = currentPath.points[i];
-            break;
-          }
+    // This is a temporary structure which is a map
+    // of points we've visited, keyed off of the
+    // square info index.
+    let currInfoMap = new Map();
+    // Follow the starting point index through to its end.
+    while( true ) {
+      let point = currInfoMap.get( index );
+      if( point === undefined ) {
+        // This point has not been added before, let's add it.
+        let point = new CheckerPathPoint();
+        point.squareInfo = squareInfos[index];
+
+        //console.log( `${index} ${squareInfos[index].targetIndex}` );
+
+        currentPath.addPoint( point );
+
+        // Add this to the map.
+        currInfoMap.set( index, point );
+
+        // Move on to the target.
+        index = squareInfos[index].targetIndex;
+        if( index === null ) {
+          // Stop iterating.
+          break;
         }
+      } else {
+        // it's been added previously, close the loop by having the last item
+        // in the array point to this item.
+        currentPath.points[currentPath.points.length - 1].next = point;
+        currentPath.isLoop = true;
+        // Stop iterating.
         break;
       }
-
-      let point = new CheckerPathPoint();
-      point.squareInfo = squareInfos[index];
-
-      //console.log( `${index} ${squareInfos[index].targetIndex}` );
-
-      currentPath.addPoint( point );
-
-      index = squareInfos[index].targetIndex;
     }
 
     const markerInfo = {
